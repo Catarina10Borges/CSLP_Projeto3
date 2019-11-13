@@ -3,20 +3,22 @@ Data Compression
 class BitStream
 """
 
-import numpy as np
+# import numpy as np
+import os
+from bitstring import ConstBitStream
 
 
 class BitStream:
     array = []
-"""
-@:param file_name it's the file name that we want to read
-@:param bitcount counts how many bits 
-@:param counter counts 
-"""
+    """
+    @:param file_name it's the file name that we want to read
+    @:param bitcount counts how many bits 
+    @:param counter counts 
+    """
+
     def __init__(self, file_name):
-        self.filename = file_name
-        self.bitcount = 0
-        self.counter = 0
+        self.file_name = file_name
+        self.stream = ConstBitStream(filename=file_name)
 
     def __str__(self):
         return None
@@ -24,35 +26,25 @@ class BitStream:
     # The resulting file should be binary
     # the minimum amount of data that you can access in a file is one byte (8 bits)
     def readbit(self):
-        file = self.filename
-        bit = self.bit
-        byte = self.byte
-
-        f = open(file, 'rb')
-        for x in f
-            f.read(x) # reads character bem character
-            x += 1
-
-         f.close()
-        # byte = f.read(1)  # reads one byte
-        # bit  = byte & 0b00000001  # ler apenas 1 bit
-
+        return self.stream.read(1).tobytes()
 
     def writebit(self, bit):
-        if self.bitcount == 8:
-            return None
-        if bit > 0:
-            self.counter |= 1 << 7 - self.bitcount
-        self.bitcount += 1
+        f = open('output.txt', 'wb+')
+        f.write(bit)
 
-    def readbits(self, file, nbits):
-
-        return None
+    def readbits(self, nbits):
+        bits = self.stream.read(nbits).tobytes()
+        return bits
 
     def writebits(self, bits, n):
-        while n > 0:
-            self.writeBit(bits & 1 << n - 1)
-            self.n -= 1
+        f = open('output.txt', 'wb+')
+        f.write(bits)
 
 
-
+bitstream = BitStream('test.txt')
+bitstream.readbit()
+bitstream.readbit()
+bitstream.readbit()
+print(bitstream.readbits(5))
+print(bitstream.readbits(8))
+bitstream.writebit(bitstream.readbits(16))
