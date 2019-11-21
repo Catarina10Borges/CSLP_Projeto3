@@ -1,22 +1,21 @@
 """
-Data Compression
-class BitStream
+Data Compression contains class BitStream and all the functions to read and write bits from a file.
+Contains, also, all the Golomb code
 """
 
-# import numpy as np
 import os
 from bitstring import ConstBitStream
 import math
 
-
 class BitStream:
-    """
-    @:param file_name it's the file name that we want to read
-    @:param bitcount counts how many bits 
-    @:param counter counts 
-    """
 
     def __init__(self, file_name):
+        """
+        Init method or constructor
+        @:param self The object pointer
+        @:param file_name it's the file that we want to read
+        @:param stream it's the 8 bit stream
+        """
         self.file_name = file_name
         self.stream = ConstBitStream(filename=file_name)
 
@@ -26,22 +25,42 @@ class BitStream:
     # The resulting file should be binary
     # the minimum amount of data that you can access in a file is one byte (8 bits)
     def readbit(self):
+        """
+        Reads bit by bit, an then transforms it to byte streams
+        """
         return self.stream.read(1).tobytes()
 
     def writebit(self, bit):
+        """
+        Writes the binary file with all the bits read
+        @:param bit
+        """
         f = open('output.bin', 'wb+')
         f.write(bit)
 
     def readbits(self, nbits):
+        """
+        Reads all the bits, an then transforms it to byte streams
+        @:param nbits
+        """
         bits = self.stream.read(nbits).tobytes()
         return bits
 
     def writebits(self, bits):
+        """
+        Writes all the bits read in the file
+        @:param bits
+        """
         f = open('output.txt', 'wb+')
         for i in bits:
-            f.write(int(i,2).to_bytes(len(i), byteorder='big'))
+            f.write(int(i, 2).to_bytes(len(i), byteorder='big'))
 
     def golomb_code(self, x, m):
+        """
+        @:param x
+        @:param m
+        Calculates quocient (quo) and remainder (remin)
+        """
         c = int(math.ceil(math.log(m, 2)))
         remin = x % m
         quo = int(math.floor(x / m))
@@ -70,11 +89,14 @@ class BitStream:
         # print "final",final
         return final
 
-
+"""
+Testing the BitStream Class
+"""
 bitstream = BitStream('test.bin')
 
 m = 4
 golocode = []
+
 for s in range(0,int(len(bitstream.stream)/8) - 1):
     byte = bitstream.stream.read(8).tobytes()
     int_fromb = int(byte.decode("utf-8"))
