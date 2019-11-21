@@ -14,15 +14,17 @@ import math
 
 class BitStream:
 
-    def __init__(self, file_name):
+    def __init__(self, output):
         """
         Init method or constructor
         @:param self The object pointer
         @:param file_name it's the file that we want to read
         @:param stream it's the 8 bit stream
         """
-        self.file_name = file_name
-        self.stream = ConstBitStream(filename=file_name)
+        self.file_name = output
+        #self.stream = ConstBitStream(filename=file_name)
+        self.f = open(output, 'wb')
+        self.byte = ''
 
     def __str__(self):
         return None
@@ -35,30 +37,35 @@ class BitStream:
         """
         return self.stream.read(1).tobytes()
 
-    def writebit(self, bit):
-        """
-        Writes the binary file with all the bits read
-        @:param bit
-        """
-        f = open('output.bin', 'wb+')
-        f.write(bit)
-
     def readbits(self, nbits):
         """
         Reads all the bits, an then transforms it to byte streams
         @:param nbits
         """
-        bits = self.stream.read(nbits).tobytes()
+        bits = self.stream.read(nbits)
         return bits
+
+    def writebit(self, bit='1'):
+        """
+        Writes the binary file with all the bits read
+        @:param bit
+        """
+
+        self.byte += bit
+        if len(self.byte) >= 8:
+            self.f.write(int(self.byte[:8], 2).to_bytes(1, byteorder='big'))
+            self.byte = self.byte[8:]
 
     def writebits(self, bits):
         """
         Writes all the bits read in the file
         @:param bits
         """
-        f = open('output.txt', 'wb+')
-        for i in bits:
-            f.write(int(i, 2).to_bytes(len(i), byteorder='big'))
+
+        self.byte += bits
+        if len(self.byte) >= 8:
+            self.f.write(int(self.byte[:8], 2).to_bytes(1, byteorder='big'))
+            self.byte = self.byte[8:]
 
     def golomb_code(self, x, m):
         """
@@ -97,19 +104,29 @@ class BitStream:
 """
 Testing the BitStream Class
 """
+"""
 bitstream = BitStream('test.bin')
 
-m = 4
+m = 2
 golocode = []
 
-for s in range(0,int(len(bitstream.stream)/8) - 1):
+for s in range(0,int(len(bitstream.stream)/8)):
     byte = bitstream.stream.read(8).tobytes()
     int_fromb = int(byte.decode("utf-8"))
+    print("Golomb coding result for", s, "with parameter m equals", m, "is", bitstream.golomb_code(int_fromb, m))
     golocode += [bitstream.golomb_code(int_fromb, m)]
+    
 
-print(golocode)
-bitstream.writebits(golocode)
+print(golocode)"""
+#bitstream.writebits(golocode, 'output.bin')
 
-bitstream2 = BitStream('output.txt')
-print(bitstream2.readbits(64))
+bitstream2 = BitStream('output2.bin')
+bitstream2.writebit()
+bitstream2.writebits('0000000')
+bitstream2.writebits('10101010')
+bitstream2.f.close()
+
+f = ConstBitStream(filename='output2.bin')
+print(f.read(8))
+
 
