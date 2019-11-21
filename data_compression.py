@@ -35,14 +35,14 @@ class BitStream:
         """
         Reads bit by bit, an then transforms it to byte streams
         """
-        return self.stream.read(1).tobytes()
+        return self.f.read(1)
 
     def readbits(self, nbits):
         """
         Reads all the bits, an then transforms it to byte streams
         @:param nbits
         """
-        bits = self.stream.read(nbits)
+        bits = self.f.read(nbits)
         return bits
 
     def writebit(self, bit='1'):
@@ -125,8 +125,15 @@ bitstream2.writebit()
 bitstream2.writebits('0000000')
 bitstream2.writebits('10101010')
 bitstream2.f.close()
+bitstream2.f = ConstBitStream(filename='output2.bin')
+print(bitstream2.readbit())
+print(bitstream2.readbit())
+print(bitstream2.readbit())
+print(bitstream2.readbit())
+print(bitstream2.readbit())
+print(bitstream2.readbit())
+print(bitstream2.readbit())
+print(bitstream2.readbit())
 
-f = ConstBitStream(filename='output2.bin')
-print(f.read(8))
 
 
