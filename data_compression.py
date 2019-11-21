@@ -1,6 +1,11 @@
 """
+@:mainpage Data Compression Project 3
+@:author name Catarina Bores, 73865
+@:author  Francisco Aires, 76490
+"""
+"""
 Data Compression contains class BitStream and all the functions to read and write bits from a file.
-Contains, also, all the Golomb code
+Contains, also, the Golomb code
 """
 
 import os
@@ -107,3 +112,4 @@ bitstream.writebits(golocode)
 
 bitstream2 = BitStream('output.txt')
 print(bitstream2.readbits(64))
+
