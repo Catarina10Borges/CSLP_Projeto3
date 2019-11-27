@@ -67,57 +67,95 @@ class BitStream:
             self.f.write(int(self.byte[:8], 2).to_bytes(1, byteorder='big'))
             self.byte = self.byte[8:]
 
-    def golomb_code(self, x, m):
-        """
-        @:param x
-        @:param m
-        Calculates quocient (quo) and remainder (remin)
-        """
-        c = int(math.ceil(math.log(m, 2)))
-        remin = x % m
-        quo = int(math.floor(x / m))
-        # print "quo is",quo
-        # print "reminder",remin
-        # print "c",c
-        div = int(math.pow(2, c) - m)
-        # print "div",div
-        first = ""
-        for i in range(quo):
-            first = first + "1"
-        # print first
+def golomb_code(x, m):
+    """
+    @:param x
+    @:param m
+    Calculates quocient (quo) and remainder (remin)
+    """
+    c = int(math.ceil(math.log(m, 2)))
+    remin = x % m
+    quo = int(math.floor(x / m))
+    #print("quo is",quo)
+    #print("reminder",remin)
+    #print("c",c)
+    div = int(math.pow(2, c) - m)
+    #print("div",div)
+    first = ""
+    for i in range(quo):
+        first += "1"
+    #print(first)
 
-        if (remin < div):
-            b = c - 1
-            a = "{0:0" + str(b) + "b}"
-            # print "1",a.format(remin)
-            bi = a.format(remin)
+    if (remin < div):
+        b = c - 1
+        a = "{0:0" + str(b) + "b}"
+        #print("1",a.format(remin))
+        bi = a.format(remin)
+    else:
+        b = c
+        a = "{0:0" + str(b) + "b}"
+        #print("2",a.format(remin+div))
+        bi = a.format(remin + div)
+
+    final = first + "0" + str(bi)
+    #print("final",final)
+    return final
+
+def golomb_decode(s, m):
+    """
+    @:param x
+    @:param m
+    Calculates quocient (quo) and remainder (remin)
+    """
+    k = math.ceil(math.log(m, 2))
+    print('k',k)
+    t = int(str(2)+str(k))-m
+    t = int(str(t)[0])
+    c = 0
+    x = ''
+    for i in s:
+        if i == '1':
+            c += 1
         else:
-            b = c
-            a = "{0:0" + str(b) + "b}"
-            # print "2",a.format(remin+div)
-            bi = a.format(remin + div)
+            break
+    print('c',c)
+    for i in s[c+1:c+1+k]:
+        x += i
+    print('x', x)
+    x = int(x,2)
+    print('x', x)
+    c = c*m+x
+    if m % 2 == 0 or c == 0:
+        return c
+    else:
+        return c-1
 
-        final = first + "0" + str(bi)
-        # print "final",final
-        return final
 
 """
 Testing the BitStream Class
 """
-"""
+
 bitstream = BitStream('test.bin')
 
-m = 2
+m = 16
 golocode = []
-
+"""
 for s in range(0,int(len(bitstream.stream)/8)):
     byte = bitstream.stream.read(8).tobytes()
     int_fromb = int(byte.decode("utf-8"))
     print("Golomb coding result for", s, "with parameter m equals", m, "is", bitstream.golomb_code(int_fromb, m))
     golocode += [bitstream.golomb_code(int_fromb, m)]
-    
+"""
+numbers = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,100,200,255]
+for s in numbers:
+    golocode += [golomb_code(s,m)]
+print(golocode)
 
-print(golocode)"""
+decoded = []
+for s in golocode:
+    decoded += [golomb_decode(s,m)]
+print(decoded)
+
 #bitstream.writebits(golocode, 'output.bin')
 
 bitstream2 = BitStream('output2.bin')
@@ -126,6 +164,7 @@ bitstream2.writebits('0000000')
 bitstream2.writebits('10101010')
 bitstream2.f.close()
 bitstream2.f = ConstBitStream(filename='output2.bin')
+
 print(bitstream2.readbit())
 print(bitstream2.readbit())
 print(bitstream2.readbit())
@@ -134,6 +173,7 @@ print(bitstream2.readbit())
 print(bitstream2.readbit())
 print(bitstream2.readbit())
 print(bitstream2.readbit())
+
 
 
 
