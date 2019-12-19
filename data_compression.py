@@ -1,16 +1,17 @@
 """
-@:mainpage Data Compression Project 3
-@:author name Catarina Bores, 73865
-@:author  Francisco Aires, 76490
+Data Compression Project 3 in python
+Catarina Bores, 73865
+Francisco Aires, 76490
 """
 """
 Data Compression contains class BitStream and all the functions to read and write bits from a file.
-Contains, also, the Golomb code
+Contains the Golomb coding and decoding
 """
 
 import os
 from bitstring import ConstBitStream
 import math
+
 
 class BitStream:
 
@@ -19,10 +20,10 @@ class BitStream:
         Init method or constructor
         @:param self The object pointer
         @:param file_name it's the file that we want to read
-        @:param stream it's the 8 bit stream
+        @:param byte it's the stream
         """
         self.file_name = output
-        #self.stream = ConstBitStream(filename=file_name)
+        # self.stream = ConstBitStream(filename=file_name)
         self.f = open(output, 'wb')
         self.byte = ''
 
@@ -33,13 +34,11 @@ class BitStream:
     # the minimum amount of data that you can access in a file is one byte (8 bits)
     def readbit(self):
         """
-        Reads bit by bit, an then transforms it to byte streams
         """
         return self.f.read(1)
 
     def readbits(self, nbits):
         """
-        Reads all the bits, an then transforms it to byte streams
         @:param nbits
         """
         bits = self.f.read(nbits)
@@ -47,7 +46,6 @@ class BitStream:
 
     def writebit(self, bit='1'):
         """
-        Writes the binary file with all the bits read
         @:param bit
         """
 
@@ -58,7 +56,6 @@ class BitStream:
 
     def writebits(self, bits):
         """
-        Writes all the bits read in the file
         @:param bits
         """
 
@@ -67,94 +64,79 @@ class BitStream:
             self.f.write(int(self.byte[:8], 2).to_bytes(1, byteorder='big'))
             self.byte = self.byte[8:]
 
+
 def golomb_code(x, m):
     """
-    @:param x
-    @:param m
+    @:param x the value we want to transform in the golomb code
+    @:param m is the parameter of the Golomb code
     Calculates quocient (quo) and remainder (remin)
     """
     c = int(math.ceil(math.log(m, 2)))
     remin = x % m
-    quo = int(math.floor(x / m))
     div = int(math.pow(2, c) - m)
+    quo = int(math.floor(x / m))
+
     first = ""
     for i in range(quo):
         first += "1"
-    if (remin < div):
+    if remin < div:
         b = c - 1
         a = "{0:0" + str(b) + "b}"
-        #print("1",a.format(remin))
         bi = a.format(remin)
+
     else:
         b = c
         a = "{0:0" + str(b) + "b}"
-        #print("2",a.format(remin+div))
         bi = a.format(remin + div)
 
     final = first + "0" + str(bi)
-    #print("final",final)
+
     return final
 
-def golomb_decode(s, m):
+
+def golomb_decode(x, m):
     """
-    @:param x
-    @:param m
-    Calculates quocient (quo) and remainder (remin)
+    @:param s the value we to decode
+    @:param m is the parameter of the Golomb code
+    Does the decoding of the golomb_code
     """
     k = math.ceil(math.log(m, 2))
-    print('k',k)
-    c = 0
-    x = ''
-    for i in s:
+    div = int(math.pow(2, k) - m)  # equivalent to t
+    s = 0  # number of consecutive ones
+
+    for i in x:
         if i == '1':
-            c += 1
+            s += 1  # number of consecutive ones
         else:
+            n = x[s+1 : s + k]
             break
-    #print('c',c)
-    for i in s[c+1:c+k+1]:
-        x += i
-    print('x', x)
-    x = int(x,2)
-    print('x', x)
-    #print('x', x)
-    c = c*m+x
-    return c
+    n = int(n, 2)
 
+    if (n < div):
+        s = s * m + n
+    else:
+        n = n * 2 + int(x[s+k])
+        s = s * m + n - div
 
+    return s
 
 """
-Testing the BitStream Class
+Testing Golomb Code
 """
 
-bitstream = BitStream('test.bin')
-
-m = 20
+m = 4
 golocode = []
-"""
-for s in range(0,int(len(bitstream.stream)/8)):
-    byte = bitstream.stream.read(8).tobytes()
-    int_fromb = int(byte.decode("utf-8"))
-    print("Golomb coding result for", s, "with parameter m equals", m, "is", bitstream.golomb_code(int_fromb, m))
-    golocode += [bitstream.golomb_code(int_fromb, m)]
-"""
-numbers = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,100,200,255]
+
+numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 100, 200, 255, 99, 70]
+
 for s in numbers:
-    golocode += [golomb_code(s,m)]
+    golocode += [golomb_code(s, m)]
 print(golocode)
 
 decoded = []
 for s in golocode:
-    decoded += [golomb_decode(s,m)]
+    decoded += [golomb_decode(s, m)]
 print(decoded)
-
-#bitstream.writebits(golocode, 'output.bin')
-
-bitstream2 = BitStream('output2.bin')
-bitstream2.writebit()
-bitstream2.writebits('0000000')
-bitstream2.writebits('10101010')
-bitstream2.f.close()
-bitstream2.f = ConstBitStream(filename='output2.bin')
 
 
 
