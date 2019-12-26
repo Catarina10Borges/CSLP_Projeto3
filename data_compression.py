@@ -127,7 +127,7 @@ Testing Golomb Code
 m = 4
 golocode = []
 
-numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 100, 200, 255, 99, 70]
+numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 100, 200, 255, 99, 70, 90]
 
 for s in numbers:
     golocode += [golomb_code(s, m)]
