@@ -96,12 +96,12 @@ def golomb_code(x, m):
 
 def golomb_decode(x, m):
     """
-    @:param s the value we to decode
+    @:param x is the value to decode
     @:param m is the parameter of the Golomb code
     Does the decoding of the golomb_code
     """
     k = math.ceil(math.log(m, 2))
-    div = int(math.pow(2, k) - m)  # equivalent to t
+    div = int(math.pow(2, k) - m)
     s = 0  # number of consecutive ones
 
     for i in x:
@@ -137,6 +137,10 @@ decoded = []
 for s in golocode:
     decoded += [golomb_decode(s, m)]
 print(decoded)
+
+"""
+Testing is over
+"""
 
 
 
