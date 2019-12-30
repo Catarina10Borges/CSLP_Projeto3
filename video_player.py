@@ -7,8 +7,8 @@ from data_compression import BitStream
 from collections import Counter
 import matplotlib.pyplot as plt
 
-videoReader = BitStream('akiyo_cif.y4m','rb')
-
+videoReader = BitStream('akiyo_cif.y4m')
+f = open('akiyo_cif.y4m', 'rb')
 bits = videoReader.readbits(43)
 first_line = bits.decode().split(' ')
 print(first_line)

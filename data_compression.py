@@ -24,7 +24,7 @@ class BitStream:
         """
         self.file_name = output
         # self.stream = ConstBitStream(filename=file_name)
-        self.f = open(output, 'wb')
+        self.f = open(output, 'rb')
         self.byte = ''
 
     def __str__(self):
