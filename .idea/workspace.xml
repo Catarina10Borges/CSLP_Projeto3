@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="69fe1354-8504-4902-be23-c7d833c3fc10" name="Default Changelist" comment="golomb codding working">
-      <change afterPath="$PROJECT_DIR$/video_player.py" afterDir="false" />
+    <list default="true" id="69fe1354-8504-4902-be23-c7d833c3fc10" name="Default Changelist" comment="video_player added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_compression.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_compression.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video_player.py" beforeDir="false" afterPath="$PROJECT_DIR$/video_player.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,11 +12,25 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="Python Stub" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -121,7 +135,16 @@
       <workItem from="1574360447980" duration="2616000" />
       <workItem from="1574364673014" duration="8000" />
       <workItem from="1574867412411" duration="9360000" />
-      <workItem from="1574957883669" duration="9866000" />
+      <workItem from="1574957883669" duration="9973000" />
+      <workItem from="1575472804693" duration="1719000" />
+      <workItem from="1575474601237" duration="756000" />
+      <workItem from="1575475835198" duration="6680000" />
+      <workItem from="1575562769091" duration="9786000" />
+      <workItem from="1575583054613" duration="34000" />
+      <workItem from="1576167648754" duration="9884000" />
+      <workItem from="1576277235392" duration="143000" />
+      <workItem from="1576690318189" duration="6701000" />
+      <workItem from="1576772149528" duration="2822000" />
     </task>
     <task id="LOCAL-00001" summary="read write bits done">
       <created>1573661953360</created>
@@ -158,7 +181,14 @@
       <option name="project" value="LOCAL" />
       <updated>1574876759800</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="video_player added">
+      <created>1574967794912</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1574967794912</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -183,10 +213,22 @@
     <MESSAGE value="writebit() and writebits() working" />
     <MESSAGE value="readbit(), readbits() working" />
     <MESSAGE value="golomb coding and decoding working" />
-    <option name="LAST_COMMIT_MESSAGE" value="golomb coding and decoding working" />
+    <MESSAGE value="video_player added" />
+    <option name="LAST_COMMIT_MESSAGE" value="video_player added" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/CSLP_Projeto3$data_compression.coverage" NAME="data_compression Coverage Results" MODIFIED="1574961834759" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/CSLP_Projeto3$video_player.coverage" NAME="video_player Coverage Results" MODIFIED="1574967753751" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CSLP_Projeto3$data_compression.coverage" NAME="data_compression Coverage Results" MODIFIED="1576695011443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CSLP_Projeto3$video_player.coverage" NAME="video_player Coverage Results" MODIFIED="1576778408063" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
