@@ -5,7 +5,6 @@ from Frame import Frame
 from Video import Video
 from data_compression import BitStream
 from collections import Counter
-import matplotlib.pyplot as plt
 
 videoReader = BitStream('akiyo_cif.y4m')
 f = open('akiyo_cif.y4m', 'rb')
@@ -15,27 +14,28 @@ print(first_line)
 w = int(first_line[1][1:])
 h = int(first_line[2][1:])
 frame_ratio = first_line[3][1:].split(':')
-frame_rate = int(round(int(frame_ratio[0])/int(frame_ratio[1])))
+frame_rate = int(round(int(frame_ratio[0]) / int(frame_ratio[1])))
 print(frame_rate)
 videoReader.readbit()
 i = 0
 l = 0
 f = 0
 frame = b''
-frame_size = int(w*h*3/2)
+frame_size = int(w * h * 3 / 2)
 print(frame_size)
 bytes = videoReader.readbits(6)
 
+
 def read_frame(frame):
-    y = frame[:2*int(frame_size/3)]
-    u = frame[2*int(frame_size/3):int(5*frame_size/6)]
-    v = frame[int(5*frame_size/6):]
-    y_array = np.frombuffer(y, dtype=np.uint8,count=w*h)
+    y = frame[:2 * int(frame_size / 3)]
+    u = frame[2 * int(frame_size / 3):int(5 * frame_size / 6)]
+    v = frame[int(5 * frame_size / 6):]
+    y_array = np.frombuffer(y, dtype=np.uint8, count=w * h)
     u_array = np.frombuffer(u, dtype=np.uint8)
     v_array = np.frombuffer(v, dtype=np.uint8)
-    y_matrix = np.reshape(y_array,(h,w))
-    u_matrix = np.reshape(u_array,(h//2,w//2))
-    v_matrix = np.reshape(v_array,(h//2,w//2))
+    y_matrix = np.reshape(y_array, (h, w))
+    u_matrix = np.reshape(u_array, (h // 2, w // 2))
+    v_matrix = np.reshape(v_array, (h // 2, w // 2))
     frame_object = Frame(y_matrix, u_matrix, v_matrix)
     return frame_object
 
@@ -52,12 +52,21 @@ def YUV2RGB(yuv):
     return np.uint8(rgb)
 
 
+def jpeg_ls(a, b, c):
+    if c >= max(a, b):
+        return int(min(a, b))
+    elif c <= min(a, b):
+        return int(max(a, b))
+    else:
+        return int(a) + int(b) - int(c)
+
+
+
 cap = cv2.VideoCapture('akiyo_cif.y4m')
 
 # Check if camera opened successfully
 if (cap.isOpened() == False):
     print("Error opening video stream or file")
-
 
 frames = []
 while True:
@@ -79,15 +88,16 @@ for frame in video.frames:
     array = np.dstack((frame.y_matrix, frame.u_matrix.repeat(2, axis=0).repeat(2, axis=1),
                        frame.v_matrix.repeat(2, axis=0).repeat(2, axis=1)))
     BGR = cv2.cvtColor(array, cv2.COLOR_YUV2BGR)
-    cv2.imshow('rgb',BGR)
+    cv2.imshow('rgb', BGR)
     cv2.waitKey(1)
-    unique, counts = np.unique(array, return_counts = True)
+    unique, counts = np.unique(array, return_counts=True)
     temp = dict(zip(unique, counts))
     entropyC = Counter(entropy)
     tempC = Counter(temp)
     entropy = dict(entropyC + tempC)
 
 cv2.destroyAllWindows()
+
 """
 entropy = {k: v for k, v in sorted(entropy.items(), key=lambda item: item[1], reverse=True)}
 #print(entropy)
@@ -98,4 +108,19 @@ print(entropyList)
 plt.bar(list(entropy.keys()), entropy.values(), color='g')
 plt.show()
 """
+
+
+def compress(video):
+    for frame in video.frames:
+        array = np.dstack((frame.y_matrix, frame.u_matrix.repeat(2, axis=0).repeat(2, axis=1),
+                           frame.v_matrix.repeat(2, axis=0).repeat(2, axis=1)))
+        for x in range(video.height):
+            for y in range(video.width):
+                if x != 0 and y != 0:
+                    prediction0 = jpeg_ls(array[x - 1][y][0], array[x][y - 1][0], array[x - 1][y - 1][0])
+                    prediction1 = jpeg_ls(array[x - 1][y][1], array[x][y - 1][1], array[x - 1][y - 1][1])
+                    prediction2 = jpeg_ls(array[x - 1][y][2], array[x][y - 1][2], array[x - 1][y - 1][2])
+        print(frame)
+
+compress(video)
 
