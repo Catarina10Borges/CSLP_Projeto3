@@ -54,12 +54,11 @@ def YUV2RGB(yuv):
 
 def jpeg_ls(a, b, c):
     if c >= max(a, b):
-        return int(min(a, b))
+        return min(a, b)
     elif c <= min(a, b):
-        return int(max(a, b))
+        return max(a, b)
     else:
         return int(a) + int(b) - int(c)
-
 
 
 cap = cv2.VideoCapture('akiyo_cif.y4m')
@@ -88,15 +87,15 @@ for frame in video.frames:
     array = np.dstack((frame.y_matrix, frame.u_matrix.repeat(2, axis=0).repeat(2, axis=1),
                        frame.v_matrix.repeat(2, axis=0).repeat(2, axis=1)))
     BGR = cv2.cvtColor(array, cv2.COLOR_YUV2BGR)
-    cv2.imshow('rgb', BGR)
-    cv2.waitKey(1)
+    # cv2.imshow('rgb', BGR)
+    # cv2.waitKey(1)
     unique, counts = np.unique(array, return_counts=True)
     temp = dict(zip(unique, counts))
     entropyC = Counter(entropy)
     tempC = Counter(temp)
     entropy = dict(entropyC + tempC)
 
-cv2.destroyAllWindows()
+# cv2.destroyAllWindows()
 
 """
 entropy = {k: v for k, v in sorted(entropy.items(), key=lambda item: item[1], reverse=True)}
@@ -111,16 +110,40 @@ plt.show()
 
 
 def compress(video):
+    fc = 0
+    err_matrix = []
     for frame in video.frames:
         array = np.dstack((frame.y_matrix, frame.u_matrix.repeat(2, axis=0).repeat(2, axis=1),
                            frame.v_matrix.repeat(2, axis=0).repeat(2, axis=1)))
+        BGR = cv2.cvtColor(array, cv2.COLOR_YUV2BGR)
         for x in range(video.height):
             for y in range(video.width):
-                if x != 0 and y != 0:
-                    prediction0 = jpeg_ls(array[x - 1][y][0], array[x][y - 1][0], array[x - 1][y - 1][0])
-                    prediction1 = jpeg_ls(array[x - 1][y][1], array[x][y - 1][1], array[x - 1][y - 1][1])
-                    prediction2 = jpeg_ls(array[x - 1][y][2], array[x][y - 1][2], array[x - 1][y - 1][2])
-        print(frame)
+                a = array[x - 1, y]
+                b = array[x, y - 1]
+                c = array[x - 1, y - 1]
+                original = array[x, y]
+                prediction0 = jpeg_ls(a[0], b[0], c[0])
+                prediction1 = jpeg_ls(a[1], b[1], c[1])
+                prediction2 = jpeg_ls(a[2], b[2], c[2])
+                e0 = int(original[0]) - prediction0
+                e1 = int(original[1]) - prediction1
+                e2 = int(original[2]) - prediction2
+                if e0 < 0:
+                    e0 = -2 * e0 - 1
+                else:
+                    e0 = 2 * e0
+                if e1 < 0:
+                    e1 = -2 * e1 - 1
+                else:
+                    e1 = 2 * e1
+                if e2 < 0:
+                    e2 = -2 * e2 - 1
+                else:
+                    e2 = 2 * e2
+                err_matrix += [(e0, e1, e2)]
+
+        fc += 1
+        print(fc)
+
 
 compress(video)
-
