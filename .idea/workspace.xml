@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="69fe1354-8504-4902-be23-c7d833c3fc10" name="Default Changelist" comment="video_player added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_compression.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_compression.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/video_player.py" beforeDir="false" afterPath="$PROJECT_DIR$/video_player.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -228,7 +226,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/CSLP_Projeto3$data_compression.coverage" NAME="data_compression Coverage Results" MODIFIED="1576695011443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/CSLP_Projeto3$video_player.coverage" NAME="video_player Coverage Results" MODIFIED="1576778408063" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CSLP_Projeto3$data_compression.coverage" NAME="data_compression Coverage Results" MODIFIED="1578335243924" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CSLP_Projeto3$video_player.coverage" NAME="video_player Coverage Results" MODIFIED="1578350500667" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
