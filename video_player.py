@@ -8,7 +8,7 @@ from collections import Counter
 import time
 
 
-videoReader = BitStream('after_decompression.y4m', 'rb')
+videoReader = BitStream('akiyo_cif.y4m', 'rb')
 f = videoReader.f
 bits = f.read(43)
 first_line = bits.decode().split(' ')
