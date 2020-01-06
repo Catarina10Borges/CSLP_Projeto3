@@ -3,13 +3,14 @@ import numpy as np
 
 from Frame import Frame
 from Video import Video
-from data_compression import BitStream, golomb_code
+from Bitstream import BitStream, golomb_code, golomb_decode
 from collections import Counter
 import time
 
+
 videoReader = BitStream('akiyo_cif.y4m', 'rb')
 f = videoReader.f
-bits = videoReader.readbits(43)
+bits = f.read(43)
 first_line = bits.decode().split(' ')
 print(first_line)
 w = int(first_line[1][1:])
@@ -24,7 +25,7 @@ f = 0
 frame = b''
 frame_size = int(w * h * 3 / 2)
 print(frame_size)
-bytes = videoReader.readbits(6)
+bytes = videoReader.f.read(6)
 
 
 def read_frame(frame):
@@ -40,6 +41,18 @@ def read_frame(frame):
     frame_object = Frame(y_matrix, u_matrix, v_matrix)
     return frame_object
 
+def read_frame_int(frame):
+    y = frame[:2 * int(frame_size / 3)]
+    u = frame[2 * int(frame_size / 3):int(5 * frame_size / 6)]
+    v = frame[int(5 * frame_size / 6):]
+    y_array = np.array(y)
+    u_array = np.array(u)
+    v_array = np.array(v)
+    y_matrix = np.reshape(y_array, (h, w))
+    u_matrix = np.reshape(u_array, (h // 2, w // 2))
+    v_matrix = np.reshape(v_array, (h // 2, w // 2))
+    frame_object = Frame(y_matrix, u_matrix, v_matrix)
+    return frame_object
 
 def YUV2RGB(yuv):
     m = np.array([[1.0, 1.0, 1.0],
@@ -74,15 +87,13 @@ while True:
         break
     elif bytes == b'FRAME\n':
         f += 1
-        frame = videoReader.readbits(int(frame_size))
+        frame = videoReader.f.read(int(frame_size))
         frame = read_frame(frame)
         frames += [frame]
         i += 1
-        bytes = videoReader.readbits(6)
+        bytes = videoReader.f.read(6)
 print(i)
 video = Video('type', w, h, frame_rate, '4:2:0', frames)
-
-entropy = dict()
 
 for frame in video.frames:
     array = np.dstack((frame.y_matrix, frame.u_matrix.repeat(2, axis=0).repeat(2, axis=1),
@@ -90,25 +101,8 @@ for frame in video.frames:
     BGR = cv2.cvtColor(array, cv2.COLOR_YUV2BGR)
     # cv2.imshow('rgb', BGR)
     # cv2.waitKey(1)
-    unique, counts = np.unique(array, return_counts=True)
-    temp = dict(zip(unique, counts))
-    entropyC = Counter(entropy)
-    tempC = Counter(temp)
-    entropy = dict(entropyC + tempC)
 
 # cv2.destroyAllWindows()
-
-"""
-entropy = {k: v for k, v in sorted(entropy.items(), key=lambda item: item[1], reverse=True)}
-#print(entropy)
-entropyList = []
-for i in entropy:
-    entropyList += [(i,entropy[i])]
-print(entropyList)
-plt.bar(list(entropy.keys()), entropy.values(), color='g')
-plt.show()
-"""
-
 
 def compress(video):
     start_time = time.time()
@@ -165,4 +159,78 @@ def compress(video):
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
-compress(video)
+#compress(video)
+
+def decompress(file):
+    start_time = time.time()
+    videoReader = BitStream(file, 'rb')
+    f = videoReader.f
+    bits = f.read(43)
+    first_line = bits.decode().split(' ')
+    print(first_line)
+    w = int(first_line[1][1:])
+    h = int(first_line[2][1:])
+    frame_ratio = first_line[3][1:].split(':')
+    frame_rate = int(round(int(frame_ratio[0]) / int(frame_ratio[1])))
+    bytes = f.read()
+    print(len(bytes))
+    print(frame_size)
+    bits = ''
+    for i in bytes:
+        bits += videoReader.readbits(i)
+
+    print(len(bits))
+    frames = golomb_decode(bits,4,frame_size)
+    print(len(frames))
+    video_frames = []
+    for frame in frames:
+        frame_object = read_frame_int(frame)
+        video_frames += [frame_object]
+    original_frames = []
+    original_frame = []
+    fc = 0
+    for frame in video_frames:
+        array = frame.y_matrix
+        for x in range(video.height):
+            for y in range(video.width):
+                e = array[x, y]
+                if e % 2 == 0:
+                    e = e/2
+                else:
+                    e = (e+1)/-2
+                prediction = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                original = e + prediction
+                original_frame += [original]
+
+        array = frame.u_matrix
+        for x in range(int(video.height / 2)):
+            for y in range(int(video.width / 2)):
+                e = array[x, y]
+                if e % 2 == 0:
+                    e = e / 2
+                else:
+                    e = (e + 1) / -2
+                prediction = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                original = e + prediction
+                original_frame += [original]
+
+        array = frame.v_matrix
+        for x in range(int(video.height / 2)):
+            for y in range(int(video.width / 2)):
+                e = array[x, y]
+                if e % 2 == 0:
+                    e = e / 2
+                else:
+                    e = (e + 1) / -2
+                prediction = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                original = e + prediction
+                original_frame += [original]
+
+        original_frames += [original_frame]
+        fc += 1
+        print(fc)
+
+
+
+
+decompress('compressed')

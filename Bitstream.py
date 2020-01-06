@@ -11,6 +11,7 @@ Contains the Golomb coding and decoding
 import os
 from bitstring import ConstBitStream
 import math
+from bitstring import BitArray
 
 
 class BitStream:
@@ -37,11 +38,11 @@ class BitStream:
         """
         return self.f.read(1)
 
-    def readbits(self, nbits):
+    def readbits(self, byte):
         """
         @:param nbits
         """
-        bits = self.f.read(nbits)
+        bits = '{0:08b}'.format(int(byte))
         return bits
 
     def writebit(self, bit='1'):
@@ -94,7 +95,7 @@ def golomb_code(x, m):
     return final
 
 
-def golomb_decode(x, m):
+def golomb_decode(x, m, frame_size):
     """
     @:param x is the value to decode
     @:param m is the parameter of the Golomb code
@@ -103,41 +104,49 @@ def golomb_decode(x, m):
     k = math.ceil(math.log(m, 2))
     div = int(math.pow(2, k) - m)
     s = 0  # number of consecutive ones
-
-    for i in x:
-        if i == '1':
+    counter = 0
+    number_counter = 0
+    frames = []
+    frame = []
+    i = 0
+    while i < len(x):
+        if x[i] == '1':
             s += 1  # number of consecutive ones
+            i+=1
         else:
-            n = x[s+1 : s + k]
-            break
-    n = int(n, 2)
+            n = x[i+1 : i + k]
+            n = int(n,2)
+            if (n < div):
+                s = s * m + n
+            else:
+                n = n * 2 + int(x[i+k])
+                s = s * m + n - div
+            frame += [s]
+            number_counter+=1
+            s = 0
+            i += k + 1
+            if number_counter == frame_size:
+                counter += 1
+                frames += [frame]
+                number_counter = 0
+                frame = []
 
-    if (n < div):
-        s = s * m + n
-    else:
-        n = n * 2 + int(x[s+k])
-        s = s * m + n - div
-
-    return s
+    return frames
 
 """
 Testing Golomb Code
-"""
 
 m = 4
-golocode = []
+golocode = ''
 
-numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 100, 200, 255, 99, 70, 90]
+numbers = [0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 100, 200, 255, 99, 70, 90]
 
 for s in numbers:
-    golocode += [golomb_code(s, m)]
+    golocode += golomb_code(s, m)
 print(golocode)
 
-decoded = []
-for s in golocode:
-    decoded += [golomb_decode(s, m)]
+decoded = golomb_decode(golocode, m, 1)
 print(decoded)
 
-"""
 Testing is over
 """
