@@ -5,6 +5,7 @@ from Frame import Frame
 from Video import Video
 from data_compression import BitStream
 from collections import Counter
+import time
 
 videoReader = BitStream('akiyo_cif.y4m')
 f = open('akiyo_cif.y4m', 'rb')
@@ -110,40 +111,49 @@ plt.show()
 
 
 def compress(video):
+    start_time = time.time()
     fc = 0
     err_matrix = []
     for frame in video.frames:
-        array = np.dstack((frame.y_matrix, frame.u_matrix.repeat(2, axis=0).repeat(2, axis=1),
-                           frame.v_matrix.repeat(2, axis=0).repeat(2, axis=1)))
-        BGR = cv2.cvtColor(array, cv2.COLOR_YUV2BGR)
+        array = frame.y_matrix
         for x in range(video.height):
             for y in range(video.width):
-                a = array[x - 1, y]
-                b = array[x, y - 1]
-                c = array[x - 1, y - 1]
                 original = array[x, y]
-                prediction0 = jpeg_ls(a[0], b[0], c[0])
-                prediction1 = jpeg_ls(a[1], b[1], c[1])
-                prediction2 = jpeg_ls(a[2], b[2], c[2])
-                e0 = int(original[0]) - prediction0
-                e1 = int(original[1]) - prediction1
-                e2 = int(original[2]) - prediction2
+                prediction0 = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                e0 = int(original) - prediction0
                 if e0 < 0:
                     e0 = -2 * e0 - 1
                 else:
                     e0 = 2 * e0
-                if e1 < 0:
-                    e1 = -2 * e1 - 1
+                err_matrix += [e0]
+
+        array = frame.u_matrix
+        for x in range(int(video.height/2)):
+            for y in range(int(video.width/2)):
+                original = array[x, y]
+                prediction0 = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                e0 = int(original) - prediction0
+                if e0 < 0:
+                    e0 = -2 * e0 - 1
                 else:
-                    e1 = 2 * e1
-                if e2 < 0:
-                    e2 = -2 * e2 - 1
+                    e0 = 2 * e0
+                err_matrix += [e0]
+
+        array = frame.v_matrix
+        for x in range(int(video.height / 2)):
+            for y in range(int(video.width / 2)):
+                original = array[x, y]
+                prediction0 = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                e0 = int(original) - prediction0
+                if e0 < 0:
+                    e0 = -2 * e0 - 1
                 else:
-                    e2 = 2 * e2
-                err_matrix += [(e0, e1, e2)]
+                    e0 = 2 * e0
+                err_matrix += [e0]
 
         fc += 1
         print(fc)
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 compress(video)
