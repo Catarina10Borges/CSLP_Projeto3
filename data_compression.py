@@ -15,7 +15,7 @@ import math
 
 class BitStream:
 
-    def __init__(self, output):
+    def __init__(self, output, type):
         """
         Init method or constructor
         @:param self The object pointer
@@ -24,7 +24,7 @@ class BitStream:
         """
         self.file_name = output
         # self.stream = ConstBitStream(filename=file_name)
-        self.f = open(output, 'rb')
+        self.f = open(output, type)
         self.byte = ''
 
     def __str__(self):
@@ -60,7 +60,7 @@ class BitStream:
         """
 
         self.byte += bits
-        if len(self.byte) >= 8:
+        while len(self.byte) >= 8:
             self.f.write(int(self.byte[:8], 2).to_bytes(1, byteorder='big'))
             self.byte = self.byte[8:]
 

@@ -3,12 +3,12 @@ import numpy as np
 
 from Frame import Frame
 from Video import Video
-from data_compression import BitStream
+from data_compression import BitStream, golomb_code
 from collections import Counter
 import time
 
-videoReader = BitStream('akiyo_cif.y4m')
-f = open('akiyo_cif.y4m', 'rb')
+videoReader = BitStream('akiyo_cif.y4m', 'rb')
+f = videoReader.f
 bits = videoReader.readbits(43)
 first_line = bits.decode().split(' ')
 print(first_line)
@@ -113,46 +113,55 @@ plt.show()
 def compress(video):
     start_time = time.time()
     fc = 0
-    err_matrix = []
+    error_array = []
     for frame in video.frames:
         array = frame.y_matrix
         for x in range(video.height):
             for y in range(video.width):
                 original = array[x, y]
-                prediction0 = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
-                e0 = int(original) - prediction0
-                if e0 < 0:
-                    e0 = -2 * e0 - 1
+                prediction = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                e = int(original) - prediction
+                if e < 0:
+                    e = -2 * e - 1
                 else:
-                    e0 = 2 * e0
-                err_matrix += [e0]
+                    e = 2 * e
+                error_array += [e]
 
         array = frame.u_matrix
         for x in range(int(video.height/2)):
             for y in range(int(video.width/2)):
                 original = array[x, y]
-                prediction0 = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
-                e0 = int(original) - prediction0
-                if e0 < 0:
-                    e0 = -2 * e0 - 1
+                prediction = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                e = int(original) - prediction
+                if e < 0:
+                    e = -2 * e - 1
                 else:
-                    e0 = 2 * e0
-                err_matrix += [e0]
+                    e = 2 * e
+                error_array += [e]
 
         array = frame.v_matrix
         for x in range(int(video.height / 2)):
             for y in range(int(video.width / 2)):
                 original = array[x, y]
-                prediction0 = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
-                e0 = int(original) - prediction0
-                if e0 < 0:
-                    e0 = -2 * e0 - 1
+                prediction = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
+                e = int(original) - prediction
+                if e < 0:
+                    e = -2 * e - 1
                 else:
-                    e0 = 2 * e0
-                err_matrix += [e0]
+                    e = 2 * e
+                error_array += [e]
 
         fc += 1
         print(fc)
+
+    print(len(error_array))
+    bitstream = BitStream('compressed','wb')
+    f = bitstream.f
+    f.write(bits)
+    for i in error_array:
+        bitstream.writebits(golomb_code(i,4))
+    while len(bitstream.byte) != 0 and len(bitstream.byte) != 8:
+        bitstream.writebit('1')
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
