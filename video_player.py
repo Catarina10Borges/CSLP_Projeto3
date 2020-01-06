@@ -8,7 +8,7 @@ from collections import Counter
 import time
 
 
-videoReader = BitStream('akiyo_cif.y4m', 'rb')
+videoReader = BitStream('after_decompression.y4m', 'rb')
 f = videoReader.f
 bits = f.read(43)
 first_line = bits.decode().split(' ')
@@ -17,14 +17,12 @@ w = int(first_line[1][1:])
 h = int(first_line[2][1:])
 frame_ratio = first_line[3][1:].split(':')
 frame_rate = int(round(int(frame_ratio[0]) / int(frame_ratio[1])))
-print(frame_rate)
 videoReader.readbit()
 i = 0
 l = 0
 f = 0
 frame = b''
 frame_size = int(w * h * 3 / 2)
-print(frame_size)
 bytes = videoReader.f.read(6)
 
 
@@ -45,9 +43,9 @@ def read_frame_int(frame):
     y = frame[:2 * int(frame_size / 3)]
     u = frame[2 * int(frame_size / 3):int(5 * frame_size / 6)]
     v = frame[int(5 * frame_size / 6):]
-    y_array = np.array(y)
-    u_array = np.array(u)
-    v_array = np.array(v)
+    y_array = np.array(y,dtype=np.uint8)
+    u_array = np.array(u,dtype=np.uint8)
+    v_array = np.array(v,dtype=np.uint8)
     y_matrix = np.reshape(y_array, (h, w))
     u_matrix = np.reshape(u_array, (h // 2, w // 2))
     v_matrix = np.reshape(v_array, (h // 2, w // 2))
@@ -75,11 +73,6 @@ def jpeg_ls(a, b, c):
         return int(a) + int(b) - int(c)
 
 
-cap = cv2.VideoCapture('akiyo_cif.y4m')
-
-# Check if camera opened successfully
-if (cap.isOpened() == False):
-    print("Error opening video stream or file")
 
 frames = []
 while True:
@@ -92,17 +85,16 @@ while True:
         frames += [frame]
         i += 1
         bytes = videoReader.f.read(6)
-print(i)
+
 video = Video('type', w, h, frame_rate, '4:2:0', frames)
 
 for frame in video.frames:
     array = np.dstack((frame.y_matrix, frame.u_matrix.repeat(2, axis=0).repeat(2, axis=1),
                        frame.v_matrix.repeat(2, axis=0).repeat(2, axis=1)))
     BGR = cv2.cvtColor(array, cv2.COLOR_YUV2BGR)
-    # cv2.imshow('rgb', BGR)
-    # cv2.waitKey(1)
-
-# cv2.destroyAllWindows()
+    cv2.imshow('rgb', BGR)
+    cv2.waitKey(4)
+cv2.destroyAllWindows()
 
 def compress(video):
     start_time = time.time()
@@ -159,29 +151,22 @@ def compress(video):
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
-#compress(video)
+compress(video)
 
 def decompress(file):
     start_time = time.time()
     videoReader = BitStream(file, 'rb')
     f = videoReader.f
-    bits = f.read(43)
-    first_line = bits.decode().split(' ')
+    info = f.read(43)
+    first_line = info.decode().split(' ')
     print(first_line)
-    w = int(first_line[1][1:])
-    h = int(first_line[2][1:])
-    frame_ratio = first_line[3][1:].split(':')
-    frame_rate = int(round(int(frame_ratio[0]) / int(frame_ratio[1])))
     bytes = f.read()
-    print(len(bytes))
-    print(frame_size)
     bits = ''
     for i in bytes:
         bits += videoReader.readbits(i)
 
-    print(len(bits))
     frames = golomb_decode(bits,4,frame_size)
-    print(len(frames))
+    print('Frames: ', len(frames))
     video_frames = []
     for frame in frames:
         frame_object = read_frame_int(frame)
@@ -195,9 +180,9 @@ def decompress(file):
             for y in range(video.width):
                 e = array[x, y]
                 if e % 2 == 0:
-                    e = e/2
+                    e = e/-2
                 else:
-                    e = (e+1)/-2
+                    e = (e + 1) / -2
                 prediction = jpeg_ls(array[x - 1, y], array[x, y - 1], array[x - 1, y - 1])
                 original = e + prediction
                 original_frame += [original]
@@ -230,7 +215,16 @@ def decompress(file):
         fc += 1
         print(fc)
 
+    with open('after_decompression.y4m', 'wb') as output_file:
+        output_file.write(info)
+        output_file.write(b'\n')
 
+        for frame in original_frames:
+            output_file.write(b'FRAME\n')
+            for i in frame:
+                output_file.write(abs(int(i)).to_bytes(1, byteorder='big'))
+            break
 
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 decompress('compressed')
